@@ -1,5 +1,0 @@
-INIT = 'init'
-RUN = 'run'
-GEN = 'gen'
-COMPILE = 'compile'
-EDIT = 'edit'
