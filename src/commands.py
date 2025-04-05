@@ -13,6 +13,7 @@ import shutil
 
 TEXT_EDITOR = 'nano'
 GIT = 'git'
+VERSION = VERSION
 
 # Global files  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
