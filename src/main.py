@@ -8,6 +8,9 @@ class Commands:
     generate = 'gen'
     compile = 'compile'
     edit = 'edit'
+    switch = 'switch'
+    list = 'list'
+    remove = 'remove'
 
 
 parser = argparse.ArgumentParser(prog="debug")
@@ -15,6 +18,14 @@ subparsers = parser.add_subparsers(dest='command')
 
 init_parser = subparsers.add_parser(Commands.init, description="inititalizes new environment")
 init_parser.add_argument("name", help="name of the new environment")
+
+init_parser = subparsers.add_parser(Commands.switch, description="switches to test environment 'name'")
+init_parser.add_argument("name", help="name of the environment")
+
+init_parser = subparsers.add_parser(Commands.list, description="shows all environments available in this folder")
+
+init_parser = subparsers.add_parser(Commands.remove, description="removes the environment 'name'")
+init_parser.add_argument("name", help="name of the environment")
 
 run_parser = subparsers.add_parser(Commands.run, description="executes tests")
 run_parser.add_argument("-8", "--inf", help="generate and run tests forever", action="store_true")
@@ -40,3 +51,7 @@ parsed_args = parser.parse_args(sys.argv[1:])
 match parsed_args.command:
     case Commands.init:
         commands.init(parsed_args)
+    case Commands.remove:
+        commands.remove(parsed_args)
+    case Commands.list:
+        commands.list_all(parsed_args)
