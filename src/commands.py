@@ -1,6 +1,10 @@
 from argparse import ArgumentParser
 from pathlib import Path
+from subprocess import Popen, PIPE, TimeoutExpired
+from shlex import quote
+import time
 import src.color as color
+import src.config as config
 import sys
 import json
 import os
@@ -19,29 +23,12 @@ ENVIRONMENT_TEMPLATE_DIR = TEMPLATES_DIR / 'environment'
 
 
 WORKING_DIR = Path(".debug")
+ENVIRONMENT_DIR = None
 SETTINGS_FILE = WORKING_DIR / "settings.json"
 
 
-# Environment files = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-# These are relative to '.debug/<enviroment>'
-
-
-SCRIPTS_DIR = Path("scripts")
-TESTING_DIR = Path("testing")
-TESTS_DIR = Path("tests")
-
-RUN_SCRIPT = SCRIPTS_DIR / "run"
-GENERATE_SCRIPT = SCRIPTS_DIR / "generate"
-COMPILE_SCRIPT = SCRIPTS_DIR / "compile"
-CHECK_SCRIPT = SCRIPTS_DIR / "check"
-
 # Global scripts  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-
-DEFAULT_SETTINGS = {
-    "current": None,
-    "all": []
-}
 
 def get_setting(key):
     try:
@@ -74,16 +61,39 @@ def set_setting(key, value):
     except OSError:
         color.print_error(f"Error occured while writing to '{SETTINGS_FILE}' file")
 
-def init_global():
+def init():
     if (not os.path.isdir(WORKING_DIR)):
         shutil.copytree(DEBUG_TEMPLATE_DIR, WORKING_DIR)
+
+if os.path.isfile(SETTINGS_FILE) and get_setting('current') is not None:
+    ENVIRONMENT_DIR = WORKING_DIR / get_setting('current')
+
+
+# Environment files = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# These are relative to '.debug/<current enviroment>'
+
+
+SCRIPTS_DIR = None if ENVIRONMENT_DIR is None else ENVIRONMENT_DIR / "scripts"
+
+RUN_SCRIPT      = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "run"
+GENERATE_SCRIPT = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "generate"
+COMPILE_SCRIPT  = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "compile"
+CHECK_SCRIPT    = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "check"
+
+TESTING_DIR = None if ENVIRONMENT_DIR is None else ENVIRONMENT_DIR / "testing"
+
+INPUT_FILE  = None if TESTING_DIR is None else TESTING_DIR / "input.txt"
+OUTPUT_FILE = None if TESTING_DIR is None else TESTING_DIR / "output.txt"
+ERRORS_FILE = None if TESTING_DIR is None else TESTING_DIR / "errors.txt"
+
+TESTS_DIR   = None if ENVIRONMENT_DIR is None else ENVIRONMENT_DIR / "tests"
 
 
 # Commands  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 
-def init(parsed: ArgumentParser):
-    init_global()
+def new(parsed: ArgumentParser):
+    init()
     try:
         shutil.copytree(ENVIRONMENT_TEMPLATE_DIR, WORKING_DIR / parsed.name)
         set_setting('all', get_setting('all') + [parsed.name])
@@ -104,12 +114,12 @@ def remove(parsed: ArgumentParser):
         set_setting('current', None)
         
     except OSError:
-        color.print_error(f"An error occured. Sorry :(")
+        color.print_error(f"An unknowed error occured. Sorry :(")
 
 def show(parsed: ArgumentParser):
     if parsed.current:
-        if get_setting('current') is not None:
-            color.print_info(f"On environment '{get_setting('current')}'")
+        if ENVIRONMENT_DIR.name is not None:
+            color.print_info(f"On environment '{ENVIRONMENT_DIR.name}'")
         else:
             color.print_warning('You are now not switched to any of the environments')
     if parsed.all:
@@ -117,12 +127,125 @@ def show(parsed: ArgumentParser):
 
 def switch(parsed: ArgumentParser):
     if parsed.name in get_setting('all'):
-        if parsed.name == get_setting('current'):
-            color.print_info(f"Already on '{parsed.name}'", 0)
+        if parsed.name == ENVIRONMENT_DIR.name:
+            color.print_info(f"Already on '{parsed.name}'", exit_code=0)
         set_setting('current', parsed.name)
     else:
         color.print_error(f"No environment with name '{parsed.name}' found in cwd. Run 'debug show --all' to show the list of all available environments")
 
 def generate(parsed: ArgumentParser):
-    current_env = get_setting('current')
+    if ENVIRONMENT_DIR is None:
+        color.print_error(f"You are now not switched to any of the environments")
+    try:
+        shutil.rmtree(TESTS_DIR)
+    except FileNotFoundError:
+        pass
+    except OSError:
+        color.print_error(f"An unknown error occured. Sorry :(")
     
+    os.mkdir(TESTS_DIR)
+    for index in range(parsed.amount):
+        try:
+            gen_process = Popen([quote(str(GENERATE_SCRIPT.absolute()))], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+            stdout, stderr = gen_process.communicate()
+            if gen_process.returncode == 0:
+                with open(TESTS_DIR / config.test_name(index), 'wb') as writer:
+                    writer.write(stdout)
+                    color.print_info(f"Generated: {config.test_name(index)}")
+            else:
+                raise OSError(stderr.decode())
+        except OSError as e:
+            color.print_error(f"An error occured while generating {config.test_name(index)}:", *e.args, exit_code=None)
+            index += 1
+
+def compile(parsed: ArgumentParser):
+    compile_process = Popen([quote(str(COMPILE_SCRIPT.absolute()))], shell=True, cwd=TESTING_DIR)
+
+def run(parsed: ArgumentParser):
+    def run_test(path_to_test):
+        try:
+            shutil.copy(path_to_test, INPUT_FILE)
+        except:
+            color.print_error(f"Cannot copy {path_to_test} to {INPUT_FILE}", None)
+            return None
+        
+        stdin = open(INPUT_FILE, 'rb')
+        stdout = open(OUTPUT_FILE, 'wb')
+        stderr = open(ERRORS_FILE, 'wb')
+        tstart = time.time()
+        run_process = Popen(
+            [quote(str(RUN_SCRIPT.absolute()))],
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,            
+            shell=True,
+            cwd=TESTING_DIR
+        )
+        stderr.close()
+        stdout.close()
+        stdin.close()
+        
+        time_total = None
+        
+        try:
+            run_process.wait(parsed.timeout)
+        except TimeoutExpired as e:
+            run_process.kill()
+        tend = time.time()
+        time_total = tend - tstart
+        
+        stdin = open(INPUT_FILE, 'rb')
+        check_process = Popen(
+            [quote(str(CHECK_SCRIPT.absolute()))],
+            stdin=stdin,
+            stdout=PIPE,
+            stderr=PIPE,            
+            shell=True,
+            cwd=TESTING_DIR
+        )
+        stdin.close()
+        checker_output, checker_errors = check_process.communicate()
+        
+        config.print_test_info(
+            path_to_test.name,
+            config.status(
+                run_process.returncode,
+                check_process.returncode,
+                time_total,
+                parsed.timeout
+            ),
+            time_total
+        )
+        if parsed.input:
+            with open(INPUT_FILE) as reader:
+                config.print_additional_data('input.txt:', reader.read())
+        if parsed.output:
+            with open(OUTPUT_FILE) as reader:
+                config.print_additional_data('output.txt:', reader.read())
+        if parsed.errors:
+            color.mark_warning()
+            with open(ERRORS_FILE) as reader:
+                config.print_additional_data('errors.txt:', reader.read())
+        if parsed.checker_output:
+            config.print_additional_data('checker output:', checker_output.decode())
+        if parsed.checker_errors:
+            config.print_additional_data('checker errors:', checker_errors.decode())
+        
+    if parsed.inf:
+        pass
+    tests = parsed.tests
+    if parsed.all:
+        try:
+            tests = sorted(os.listdir(TESTS_DIR), key=config.index_from_test)
+        except FileNotFoundError:
+            color.print_error(f"Folder '{TESTS_DIR}' not found")
+        except PermissionError:
+            color.print_error(f"No permissions to read '{TESTS_DIR}' folder")
+        except OSError:
+            color.print_error(f"Error occured while accessing '{TESTS_DIR}' folder")
+    
+    for test in tests:
+        run_test(TESTS_DIR / test)
+
+def configure(parsed: ArgumentParser):
+    pass

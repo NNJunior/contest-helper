@@ -1,13 +1,30 @@
 import sys
 
-def mark_error():
+def mark_red():
     print('\033[1;31m', end='')
 
-def mark_info():
+def mark_green():
     print('\033[1;32m', end='')
 
-def mark_warning():
+def mark_purple():
     print('\033[1;35m', end='')
+
+def mark_yellow():
+    print('\033[1;33m', end='')
+
+
+def clear_marks():
+    print('\033[0m', end='')
+
+
+def mark_error():
+    mark_red()
+
+def mark_info():
+    mark_green()
+
+def mark_warning():
+    mark_purple()
 
 def clear_marks():
     print('\033[0m', end='')
