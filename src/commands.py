@@ -159,7 +159,7 @@ class TestGenerator:
             return TESTS_DIR / testing.test_name(self.index - 1)
         else:
             self.index += 1
-            color.print_error(f"An error occured while generating: {testing.test_name(self.index)}", None)
+            color.print_error(f"An error occured while generating: {testing.test_name(self.index)}", exit_code=None)
     
     def __iter__(self, ):
         return self
@@ -299,6 +299,10 @@ def configure(parsed: ArgumentParser):
     p.wait()
 
 def reinstall(parsed: ArgumentParser):
+    git_check_process = Popen([GIT], stdout=PIPE, stderr=PIPE)
+    git_check_process.wait()
+    if git_check_process.returncode != 0:
+        color.print_error(f"'git' is not installed!")
     color.print_info(f"Removing '{GLOBAL_DIR}'...")
     try:
         shutil.rmtree(GLOBAL_DIR)
@@ -311,5 +315,5 @@ def reinstall(parsed: ArgumentParser):
     reload(config)
     color.print_info(f"Successfully installed helper-{config.VERSION}!")
 
-def version(parsed: ArgumentParser):
-    color.print_info(f"helper-{config.VERSION}")
+def version():
+    color.print_info(f"helper-{config.VERSION}", exit_code=0)

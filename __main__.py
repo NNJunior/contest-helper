@@ -12,15 +12,14 @@ class Commands:
     switch = 'switch'
     show = 'show'
     remove = 'remove'
-    version = '--version'
     reinstall = 'reinstall'
 
 
 parser = argparse.ArgumentParser(prog="helper", description=f"contest-helper-{VERSION}")
+parser.add_argument("--version", help="current version of helper", action="store_true")
 subparsers = parser.add_subparsers(dest='command')
 
 reinstall_parser = subparsers.add_parser(Commands.reinstall, description="reinstalls helper at the same directory")
-version_parser = subparsers.add_parser(Commands.version, description="current version of helper")
 
 new_parser = subparsers.add_parser(Commands.new, description="creates new environment")
 new_parser.add_argument("name", help="name of the new environment")
@@ -59,6 +58,9 @@ edit_parser = subparsers.add_parser(Commands.configure, description="edit script
 edit_parser.add_argument("script", choices=('run', 'gen', 'compile', 'check'), help="edit scripts")
 
 parsed_args = parser.parse_args(sys.argv[1:])
+
+if parsed_args.version:
+    commands.version()
 
 match parsed_args.command:
     case Commands.new:
