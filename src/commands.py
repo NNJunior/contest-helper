@@ -86,6 +86,8 @@ def init(parsed: ArgumentParser):
     init_global()
     try:
         shutil.copytree(ENVIRONMENT_TEMPLATE_DIR, WORKING_DIR / parsed.name)
+        set_setting('all', get_setting('all') + [parsed.name])
+        set_setting('current', parsed.name)
     except FileExistsError:
         color.print_error(f"Environment '{parsed.name}' already exists")
     except FileNotFoundError:
