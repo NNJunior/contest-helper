@@ -299,7 +299,7 @@ def configure(parsed: ArgumentParser):
     p.wait()
 
 def reinstall(parsed: ArgumentParser):
-    git_check_process = Popen([GIT], stdout=PIPE, stderr=PIPE)
+    git_check_process = Popen([GIT, '--version'], stdout=PIPE, stderr=PIPE)
     git_check_process.wait()
     if git_check_process.returncode != 0:
         color.print_error(f"'git' is not installed!")
