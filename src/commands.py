@@ -9,9 +9,16 @@ import shutil
 # Global folders  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 GLOBAL_DIR = Path(sys.argv[0])
+TEMPLATES_DIR = GLOBAL_DIR / 'templates'
+DEBUG_TEMPLATE_DIR = TEMPLATES_DIR / '.debug'
+ENVIRONMENT_TEMPLATE_DIR = TEMPLATES_DIR / 'environment'
 
-DEBUG_DIR = Path(".debug")
-SETTINGS_FILE = DEBUG_DIR / "settings.json"
+
+# Working folders = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+
+WORKING_DIR = Path(".debug")
+SETTINGS_FILE = WORKING_DIR / "settings.json"
 
 
 # Environment folders = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -67,10 +74,8 @@ def set_setting(key, value):
         color.print_error(f"Error occured while writing to '{SETTINGS_FILE}' file")
 
 def init_global():
-    if (not os.path.isdir(DEBUG_DIR)):
-        os.mkdir(DEBUG_DIR)
-        with open(SETTINGS_FILE, 'w') as writer:
-            json.dump(DEFAULT_SETTINGS, writer, indent=4)
+    if (not os.path.isdir(WORKING_DIR)):
+        shutil.copytree(DEBUG_TEMPLATE_DIR, WORKING_DIR)
 
 
 # Commands  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
@@ -79,9 +84,7 @@ def init_global():
 def init(parsed: ArgumentParser):
     init_global()
     try:
-        os.mkdir(DEBUG_DIR / parsed.name)
-        set_setting('current', parsed.name)
-        set_setting('all', get_setting('all') + [parsed.name])
+        shutil.copytree(ENVIRONMENT_TEMPLATE_DIR, WORKING_DIR / parsed.name)
     except FileExistsError:
         color.print_error(f"Environment '{parsed.name}' already exists")
     except FileNotFoundError:
@@ -92,7 +95,7 @@ def remove(parsed: ArgumentParser):
     if parsed.name not in all_env:
         color.print_error(f"No environment with name '{parsed.name}' found in cwd. Run 'debug show --all' to show the list of all available environments")
     try:
-        shutil.rmtree(DEBUG_DIR / parsed.name)
+        shutil.rmtree(WORKING_DIR / parsed.name)
         all_env.remove(parsed.name)
         set_setting('all', all_env)
         set_setting('current', None)
