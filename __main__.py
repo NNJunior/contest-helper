@@ -71,3 +71,5 @@ match parsed_args.command:
         commands.run(parsed_args)
     case Commands.configure:
         commands.configure(parsed_args)
+    case _:
+        parser.print_help()
