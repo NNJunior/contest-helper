@@ -122,9 +122,9 @@ def remove(parsed: ArgumentParser):
 def show(parsed: ArgumentParser):
     if parsed.current:
         if ENVIRONMENT_DIR.name is not None:
-            color.print_info(f"On environment '{ENVIRONMENT_DIR.name}'")
+            color.print_info(f"In environment '{ENVIRONMENT_DIR.name}'")
         else:
-            color.print_warning('You are now not switched to any of the environments')
+            color.print_warning('You are now not inside any of the environments')
     if parsed.all:
         print(*get_setting('all'), sep='\n')
 
@@ -138,7 +138,7 @@ def switch(parsed: ArgumentParser):
 
 def generate(parsed: ArgumentParser):
     if ENVIRONMENT_DIR is None:
-        color.print_error(f"You are now not switched to any of the environments")
+        color.print_error('You are now not inside any of the environments')
     try:
         shutil.rmtree(TESTS_DIR)
     except FileNotFoundError:
@@ -162,6 +162,8 @@ def generate(parsed: ArgumentParser):
             index += 1
 
 def compile(parsed: ArgumentParser):
+    if ENVIRONMENT_DIR is None:
+        color.print_error('You are now not inside any of the environments')
     compile_process = Popen([quote(str(COMPILE_SCRIPT.absolute()))], shell=True, cwd=TESTING_DIR)
     color.print_info('Compiling...')
     compile_process.wait()
@@ -169,9 +171,11 @@ def compile(parsed: ArgumentParser):
         color.print_info('Compilation successfull!')
     else:
         sys.exit(1)
-        
 
 def run(parsed: ArgumentParser):
+    if ENVIRONMENT_DIR is None:
+        color.print_error('You are now not inside any of the environments')
+    
     def run_test(path_to_test):
         try:
             shutil.copy(path_to_test, INPUT_FILE)
