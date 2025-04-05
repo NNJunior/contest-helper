@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This script is used to check your tests. For python files, leave this file empty
 # All paths are relative to '.debug/<environment>/testing'
 

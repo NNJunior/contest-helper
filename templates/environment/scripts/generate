@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This script is used to generate tests.
 # All paths are relative to '.debug/<environment>/testing'
 
