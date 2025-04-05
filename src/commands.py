@@ -6,7 +6,7 @@ import json
 import os
 import shutil
 
-# Global folders  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# Global files  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 GLOBAL_DIR = Path(sys.argv[0])
 TEMPLATES_DIR = GLOBAL_DIR / 'templates'
@@ -14,15 +14,16 @@ DEBUG_TEMPLATE_DIR = TEMPLATES_DIR / '.debug'
 ENVIRONMENT_TEMPLATE_DIR = TEMPLATES_DIR / 'environment'
 
 
-# Working folders = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# Working files = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# These are relative to './'
 
 
 WORKING_DIR = Path(".debug")
 SETTINGS_FILE = WORKING_DIR / "settings.json"
 
 
-# Environment folders = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
-# These are relative to '.debug/<enviroment>', not '.debug'
+# Environment files = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+# These are relative to '.debug/<enviroment>'
 
 
 SCRIPTS_DIR = Path("scripts")
