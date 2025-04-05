@@ -12,6 +12,7 @@ class Commands:
     switch = 'switch'
     show = 'show'
     remove = 'remove'
+    version = 'version'
     reinstall = 'reinstall'
 
 
@@ -19,6 +20,7 @@ parser = argparse.ArgumentParser(prog="helper", description=f"contest-helper-{VE
 subparsers = parser.add_subparsers(dest='command')
 
 reinstall_parser = subparsers.add_parser(Commands.reinstall, description="reinstalls helper at the same directory")
+version_parser = subparsers.add_parser(Commands.version, description="current version of helper")
 
 new_parser = subparsers.add_parser(Commands.new, description="creates new environment")
 new_parser.add_argument("name", help="name of the new environment")
