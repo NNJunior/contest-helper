@@ -136,30 +136,41 @@ def switch(parsed: ArgumentParser):
     else:
         color.print_error(f"No environment with name '{parsed.name}' found in cwd. Run 'debug show --all' to show the list of all available environments")
 
+class TestGenerator:
+    def __init__(self, ):
+        try:
+            shutil.rmtree(TESTS_DIR)
+        except FileNotFoundError:
+            pass
+        os.mkdir(TESTS_DIR)
+        self.index = 0
+    
+    def __next__(self, ):
+        gen_process = Popen([quote(str(GENERATE_SCRIPT.absolute()))], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
+        stdout, stderr = gen_process.communicate()
+        if gen_process.returncode == 0:
+            with open(TESTS_DIR / testing.test_name(self.index), 'wb') as writer:
+                writer.write(stdout)
+                color.print_info(f"Generated: {testing.test_name(self.index)}")
+            self.index += 1
+            return TESTS_DIR / testing.test_name(self.index - 1)
+        else:
+            self.index += 1
+            color.print_error(f"An error occured while generating: {testing.test_name(self.index)}", None)
+    
+    def __iter__(self, ):
+        return self
+
 def generate(parsed: ArgumentParser):
     if ENVIRONMENT_DIR is None:
         color.print_error('You are now not inside any of the environments')
     try:
-        shutil.rmtree(TESTS_DIR)
-    except FileNotFoundError:
-        pass
+        generator = TestGenerator()
     except OSError:
         color.print_error(f"An unknown error occured. Sorry :(")
-    
-    os.mkdir(TESTS_DIR)
-    for index in range(parsed.amount):
-        try:
-            gen_process = Popen([quote(str(GENERATE_SCRIPT.absolute()))], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-            stdout, stderr = gen_process.communicate()
-            if gen_process.returncode == 0:
-                with open(TESTS_DIR / testing.test_name(index), 'wb') as writer:
-                    writer.write(stdout)
-                    color.print_info(f"Generated: {testing.test_name(index)}")
-            else:
-                raise OSError(stderr.decode())
-        except OSError as e:
-            color.print_error(f"An error occured while generating {testing.test_name(index)}:", *e.args, exit_code=None)
-            index += 1
+
+    for _ in range(parsed.amount):
+        next(generator)
 
 def compile(parsed: ArgumentParser):
     if ENVIRONMENT_DIR is None:
@@ -248,24 +259,28 @@ def run(parsed: ArgumentParser):
         compile(None)
     
     if parsed.inf:
-        pass
-    tests = parsed.tests
-    if parsed.all:
         try:
-            tests = sorted(os.listdir(TESTS_DIR), key=testing.index_from_test)
+            tests = TestGenerator()
+        except OSError:
+            color.print_error(f"An unknown error occured. Sorry :(")
+    elif parsed.all:
+        try:
+            tests = sorted(TESTS_DIR.iterdir(), key=lambda x: testing.index_from_test(x.name))
         except FileNotFoundError:
             color.print_error(f"Folder '{TESTS_DIR}' not found")
         except PermissionError:
             color.print_error(f"No permissions to read '{TESTS_DIR}' folder")
         except OSError:
             color.print_error(f"Error occured while accessing '{TESTS_DIR}' folder")
-    
+    else:
+        tests = [TESTS_DIR / test for test in parsed.tests]
+
     color.print_info('Running tests...')
     for test in tests:
         try:
-            run_test(TESTS_DIR / test)
+            run_test(test)
         except OSError:
-            color.print_error(f"An unknown error occured while executing '{test}'")
+            color.print_error(f"An unknown error occured while executing '{test.name}'")
 
 def configure(parsed: ArgumentParser):
     match parsed.script:
