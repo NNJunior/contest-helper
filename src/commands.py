@@ -13,7 +13,6 @@ import shutil
 
 TEXT_EDITOR = 'nano'
 GIT = 'git'
-VERSION = VERSION
 
 # Global files  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -299,13 +298,13 @@ def configure(parsed: ArgumentParser):
     p.wait()
 
 def reinstall(parsed: ArgumentParser):
+    global VERSION
     color.print_info(f"Removing '{GLOBAL_DIR}'...")
-    prev_v = VERSION
     try:
         shutil.rmtree(GLOBAL_DIR)
     except:
         color.print_error(f"Cannot remove '{GLOBAL_DIR}'")
-    color.print_info(f"Successfully uninstalled helper-{prev_v}")
+    color.print_info(f"Successfully uninstalled helper-{VERSION}")
     color.print_info(f"Cloning 'https://github.com/NNJunior/contest-helper.git' into '{GLOBAL_DIR}'...")
     clone_process = Popen([GIT, 'clone', 'https://github.com/NNJunior/contest-helper.git', GLOBAL_DIR], stdout=PIPE, stderr=PIPE)
     clone_process.wait()
