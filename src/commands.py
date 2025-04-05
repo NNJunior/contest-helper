@@ -233,7 +233,9 @@ def run(parsed: ArgumentParser):
             config.print_additional_data('checker output:', checker_output.decode())
         if parsed.checker_errors:
             config.print_additional_data('checker errors:', checker_errors.decode())
-        
+    if not parsed.no_compile:
+        compile(None)
+    
     if parsed.inf:
         pass
     tests = parsed.tests

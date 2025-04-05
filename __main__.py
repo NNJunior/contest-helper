@@ -13,7 +13,7 @@ class Commands:
     remove = 'remove'
 
 
-parser = argparse.ArgumentParser(prog="debug")
+parser = argparse.ArgumentParser(prog="helper")
 subparsers = parser.add_subparsers(dest='command')
 
 init_parser = subparsers.add_parser(Commands.new, description="creates new environment")
