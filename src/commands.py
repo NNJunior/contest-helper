@@ -260,6 +260,13 @@ def run(parsed: ArgumentParser):
             testing.print_additional_data('checker output:', checker_output.decode())
         if parsed.checker_errors:
             testing.print_additional_data('checker errors:', checker_errors.decode())
+        
+        return testing.status(
+            run_process.returncode,
+            check_process.returncode,
+            time_total,
+            parsed.timeout
+        )
     if not parsed.no_compile:
         compile(None)
     
@@ -283,7 +290,9 @@ def run(parsed: ArgumentParser):
     color.print_info('Running tests...')
     for test in tests:
         try:
-            run_test(test)
+            status = run_test(test)
+            if parsed.inf and not testing.TestStatus.is_ok(status):
+                break
         except OSError:
             color.print_error(f"An unknown error occured while executing '{test.name}'")
 
