@@ -163,6 +163,13 @@ def generate(parsed: ArgumentParser):
 
 def compile(parsed: ArgumentParser):
     compile_process = Popen([quote(str(COMPILE_SCRIPT.absolute()))], shell=True, cwd=TESTING_DIR)
+    color.print_info('Compiling...')
+    compile_process.wait()
+    if compile_process.returncode == 0:
+        color.print_info('Compilation successfull!')
+    else:
+        sys.exit(1)
+        
 
 def run(parsed: ArgumentParser):
     def run_test(path_to_test):
@@ -249,6 +256,7 @@ def run(parsed: ArgumentParser):
         except OSError:
             color.print_error(f"Error occured while accessing '{TESTS_DIR}' folder")
     
+    color.print_info('Running tests...')
     for test in tests:
         try:
             run_test(TESTS_DIR / test)
