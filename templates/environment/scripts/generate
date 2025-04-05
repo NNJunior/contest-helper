@@ -1,0 +1,6 @@
+# This script is used to generate tests.
+# All paths are relative to '.debug/<environment>/testing'
+
+# Here are the most popular options that you can use:
+
+# python3 /path/to/your/generator.py

@@ -1,0 +1,7 @@
+# This script is used to run your code
+# All paths are relative to '.debug/<environment>/testing'
+
+# Here are the most popular options that you can use:
+
+# ./a.out
+# python3 /path/to/your/file.py
