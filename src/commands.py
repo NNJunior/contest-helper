@@ -11,6 +11,7 @@ import os
 import shutil
 
 TEXT_EDITOR = 'nano'
+GIT = 'git'
 
 # Global files  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -294,3 +295,16 @@ def configure(parsed: ArgumentParser):
             p = Popen([TEXT_EDITOR, CHECK_SCRIPT])
     
     p.wait()
+
+def reinstall(parsed: ArgumentParser):
+    color.print_info(f"Removing '{GLOBAL_DIR}'...")
+    try:
+        shutil.rmtree(GLOBAL_DIR)
+    except:
+        color.print_error(f"Cannot remove '{GLOBAL_DIR}'")
+    color.print_info(f"Cloning 'https://github.com/NNJunior/contest-helper.git' into '{GLOBAL_DIR}'...")
+    clone_process = Popen([GIT, 'clone', 'https://github.com/NNJunior/contest-helper.git', GLOBAL_DIR], stdout=PIPE, stderr=PIPE)
+    clone_process.wait()
+    from src.config import VERSION
+    color.print_info(f"Successfully reinstalled helper-{VERSION}!")
+    

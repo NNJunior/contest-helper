@@ -148,6 +148,12 @@ helper new [-h | --help] name
 ```
 Creates new environment with in the current folder with name `<name>`. When an envrionment is created, it is not set to test your code. See `helper config` for configuring compile/run/generate/check scripts. 
 
+## `helper reinstall`
+```
+helper reinstall [-h | --help]
+```
+Reinstalls `helper` at the same directory
+
 ## `helper show`
 ```
 helper show [-h | --help] [--all | --current]

@@ -1,5 +1,6 @@
 import argparse
 import src.commands as commands
+from src.config import VERSION
 import sys
 
 class Commands:
@@ -11,13 +12,16 @@ class Commands:
     switch = 'switch'
     show = 'show'
     remove = 'remove'
+    reinstall = 'reinstall'
 
 
-parser = argparse.ArgumentParser(prog="helper", description="contest-helper-v1.0.0")
+parser = argparse.ArgumentParser(prog="helper", description=f"contest-helper-{VERSION}")
 subparsers = parser.add_subparsers(dest='command')
 
-init_parser = subparsers.add_parser(Commands.new, description="creates new environment")
-init_parser.add_argument("name", help="name of the new environment")
+reinstall_parser = subparsers.add_parser(Commands.reinstall, description="reinstalls helper at the same directory")
+
+new_parser = subparsers.add_parser(Commands.new, description="creates new environment")
+new_parser.add_argument("name", help="name of the new environment")
 
 switch_parser = subparsers.add_parser(Commands.switch, description="switches to test environment 'name'")
 switch_parser.add_argument("name", help="name of the environment")
@@ -71,5 +75,7 @@ match parsed_args.command:
         commands.run(parsed_args)
     case Commands.configure:
         commands.configure(parsed_args)
+    case Commands.reinstall:
+        commands.reinstall(parsed_args)
     case _:
         parser.print_help()
