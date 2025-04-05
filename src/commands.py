@@ -20,7 +20,7 @@ GIT = 'git'
 
 GLOBAL_DIR = Path(sys.argv[0])
 TEMPLATES_DIR = GLOBAL_DIR / 'templates'
-DEBUG_TEMPLATE_DIR = TEMPLATES_DIR / '.debug'
+DEBUG_TEMPLATE_DIR = TEMPLATES_DIR / '.helper'
 ENVIRONMENT_TEMPLATE_DIR = TEMPLATES_DIR / 'environment'
 
 
@@ -28,7 +28,7 @@ ENVIRONMENT_TEMPLATE_DIR = TEMPLATES_DIR / 'environment'
 # These are relative to './'
 
 
-WORKING_DIR = Path(".debug")
+WORKING_DIR = Path(".helper")
 ENVIRONMENT_DIR = None
 SETTINGS_FILE = WORKING_DIR / "settings.json"
 
