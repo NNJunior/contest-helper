@@ -312,8 +312,12 @@ def reinstall(parsed: ArgumentParser):
     color.print_info(f"Cloning 'https://github.com/NNJunior/contest-helper.git' into '{GLOBAL_DIR}'...")
     clone_process = Popen([GIT, 'clone', 'https://github.com/NNJunior/contest-helper.git', GLOBAL_DIR], stdout=PIPE, stderr=PIPE)
     clone_process.wait()
-    reload(config)
-    color.print_info(f"Successfully installed helper-{config.VERSION}!")
+    if clone_process.returncode == 0:
+        reload(config)
+        color.print_info(f"Successfully installed helper-{config.VERSION}!")
+    else:
+        color.print_error(f"An error occured during installation of new helper!")
+    
 
 def version():
     color.print_info(f"helper-{config.VERSION}", exit_code=0)
