@@ -1,6 +1,3 @@
-#!/bin/bash
-# DO NOT REMOVE SHEBANG
-
 # This script is used to run your code
 # All paths are relative to '.debug/<environment>/testing'
 
