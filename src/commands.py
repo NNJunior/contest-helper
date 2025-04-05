@@ -4,7 +4,7 @@ from subprocess import Popen, PIPE, TimeoutExpired
 from shlex import quote
 import time
 import src.color as color
-import src.config as config
+import src.testing as testing
 import sys
 import json
 import os
@@ -152,13 +152,13 @@ def generate(parsed: ArgumentParser):
             gen_process = Popen([quote(str(GENERATE_SCRIPT.absolute()))], stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
             stdout, stderr = gen_process.communicate()
             if gen_process.returncode == 0:
-                with open(TESTS_DIR / config.test_name(index), 'wb') as writer:
+                with open(TESTS_DIR / testing.test_name(index), 'wb') as writer:
                     writer.write(stdout)
-                    color.print_info(f"Generated: {config.test_name(index)}")
+                    color.print_info(f"Generated: {testing.test_name(index)}")
             else:
                 raise OSError(stderr.decode())
         except OSError as e:
-            color.print_error(f"An error occured while generating {config.test_name(index)}:", *e.args, exit_code=None)
+            color.print_error(f"An error occured while generating {testing.test_name(index)}:", *e.args, exit_code=None)
             index += 1
 
 def compile(parsed: ArgumentParser):
@@ -216,9 +216,9 @@ def run(parsed: ArgumentParser):
         stdin.close()
         checker_output, checker_errors = check_process.communicate()
         
-        config.print_test_info(
+        testing.print_test_info(
             path_to_test.name,
-            config.status(
+            testing.status(
                 run_process.returncode,
                 check_process.returncode,
                 time_total,
@@ -228,18 +228,18 @@ def run(parsed: ArgumentParser):
         )
         if parsed.input:
             with open(INPUT_FILE) as reader:
-                config.print_additional_data('input.txt:', reader.read())
+                testing.print_additional_data('input.txt:', reader.read())
         if parsed.output:
             with open(OUTPUT_FILE) as reader:
-                config.print_additional_data('output.txt:', reader.read())
+                testing.print_additional_data('output.txt:', reader.read())
         if parsed.errors:
             color.mark_warning()
             with open(ERRORS_FILE) as reader:
-                config.print_additional_data('errors.txt:', reader.read())
+                testing.print_additional_data('errors.txt:', reader.read())
         if parsed.checker_output:
-            config.print_additional_data('checker output:', checker_output.decode())
+            testing.print_additional_data('checker output:', checker_output.decode())
         if parsed.checker_errors:
-            config.print_additional_data('checker errors:', checker_errors.decode())
+            testing.print_additional_data('checker errors:', checker_errors.decode())
     if not parsed.no_compile:
         compile(None)
     
@@ -248,7 +248,7 @@ def run(parsed: ArgumentParser):
     tests = parsed.tests
     if parsed.all:
         try:
-            tests = sorted(os.listdir(TESTS_DIR), key=config.index_from_test)
+            tests = sorted(os.listdir(TESTS_DIR), key=testing.index_from_test)
         except FileNotFoundError:
             color.print_error(f"Folder '{TESTS_DIR}' not found")
         except PermissionError:
