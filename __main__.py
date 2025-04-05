@@ -1,5 +1,5 @@
 import argparse
-import commands
+import src.commands as commands
 import sys
 
 class Commands:
@@ -9,7 +9,7 @@ class Commands:
     compile = 'compile'
     edit = 'edit'
     switch = 'switch'
-    list = 'list'
+    show = 'show'
     remove = 'remove'
 
 
@@ -19,13 +19,16 @@ subparsers = parser.add_subparsers(dest='command')
 init_parser = subparsers.add_parser(Commands.init, description="inititalizes new environment")
 init_parser.add_argument("name", help="name of the new environment")
 
-init_parser = subparsers.add_parser(Commands.switch, description="switches to test environment 'name'")
-init_parser.add_argument("name", help="name of the environment")
+switch_parser = subparsers.add_parser(Commands.switch, description="switches to test environment 'name'")
+switch_parser.add_argument("name", help="name of the environment")
 
-init_parser = subparsers.add_parser(Commands.list, description="shows all environments available in this folder")
+show_parser = subparsers.add_parser(Commands.show, description="shows information about current folder environments")
+group = show_parser.add_mutually_exclusive_group(required=True)
+group.add_argument('--all', help='all environments', action='store_true')
+group.add_argument('--current', help='current environments', action='store_true')
 
-init_parser = subparsers.add_parser(Commands.remove, description="removes the environment 'name'")
-init_parser.add_argument("name", help="name of the environment")
+remove_parser = subparsers.add_parser(Commands.remove, description="removes the environment 'name'")
+remove_parser.add_argument("name", help="name of the environment")
 
 run_parser = subparsers.add_parser(Commands.run, description="executes tests")
 run_parser.add_argument("-8", "--inf", help="generate and run tests forever", action="store_true")
@@ -53,5 +56,9 @@ match parsed_args.command:
         commands.init(parsed_args)
     case Commands.remove:
         commands.remove(parsed_args)
-    case Commands.list:
-        commands.list_all(parsed_args)
+    case Commands.show:
+        commands.show(parsed_args)
+    case Commands.switch:
+        commands.switch(parsed_args)
+    case Commands.generate:
+        commands.generate(parsed_args)
