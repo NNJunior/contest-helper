@@ -2,7 +2,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 from subprocess import Popen, PIPE, TimeoutExpired
 from shlex import quote
-from src.config import VERSION
+from importlib import reload
+import src.config as config
 import time
 import src.color as color
 import src.testing as testing
@@ -298,18 +299,17 @@ def configure(parsed: ArgumentParser):
     p.wait()
 
 def reinstall(parsed: ArgumentParser):
-    global VERSION
     color.print_info(f"Removing '{GLOBAL_DIR}'...")
     try:
         shutil.rmtree(GLOBAL_DIR)
     except:
         color.print_error(f"Cannot remove '{GLOBAL_DIR}'")
-    color.print_info(f"Successfully uninstalled helper-{VERSION}")
+    color.print_info(f"Successfully uninstalled helper-{config.VERSION}")
     color.print_info(f"Cloning 'https://github.com/NNJunior/contest-helper.git' into '{GLOBAL_DIR}'...")
     clone_process = Popen([GIT, 'clone', 'https://github.com/NNJunior/contest-helper.git', GLOBAL_DIR], stdout=PIPE, stderr=PIPE)
     clone_process.wait()
-    from src.config import VERSION
-    color.print_info(f"Installed helper-{VERSION}!")
+    reload(config)
+    color.print_info(f"Installed helper-{config.VERSION}!")
 
 def version(parsed: ArgumentParser):
-    color.print_info(f"helper-{VERSION}")
+    color.print_info(f"helper-{config.VERSION}")
