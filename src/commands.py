@@ -218,12 +218,14 @@ def run(parsed: ArgumentParser):
             run_process.wait(parsed.timeout)
         except TimeoutExpired as e:
             run_process.kill()
+        
         stderr.close()
         stdout.close()
         stdin.close()
         tend = time.time()
         time_total = tend - tstart
-        
+        with open(OUTPUT_FILE) as reader:
+            print(reader.read())
         stdin = open(INPUT_FILE, 'rb')
         check_process = Popen(
             [quote(str(CHECK_SCRIPT.absolute()))],
