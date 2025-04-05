@@ -286,6 +286,9 @@ def run(parsed: ArgumentParser):
             color.print_error(f"An unknown error occured while executing '{test.name}'")
 
 def configure(parsed: ArgumentParser):
+    if ENVIRONMENT_DIR is None:
+        color.print_error('You are now not inside any of the environments')
+    
     match parsed.script:
         case 'run':
             p = Popen([TEXT_EDITOR, RUN_SCRIPT])
