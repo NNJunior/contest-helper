@@ -135,6 +135,8 @@ def switch(parsed: ArgumentParser):
     if parsed.name in get_setting('all'):
         if parsed.name == ENVIRONMENT_DIR.name:
             color.print_info(f"Already on '{parsed.name}'", exit_code=0)
+        else:
+            color.print_info(f"Switched to '{parsed.name}'", exit_code=0)
         set_setting('current', parsed.name)
     else:
         color.print_error(f"No environment with name '{parsed.name}' found in cwd. Run 'debug show --all' to show the list of all available environments")
