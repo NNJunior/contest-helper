@@ -10,7 +10,10 @@ import json
 import os
 import shutil
 
+TEXT_EDITOR = 'nano'
+
 # Global files  = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
 
 GLOBAL_DIR = Path(sys.argv[0])
 TEMPLATES_DIR = GLOBAL_DIR / 'templates'
@@ -245,7 +248,20 @@ def run(parsed: ArgumentParser):
             color.print_error(f"Error occured while accessing '{TESTS_DIR}' folder")
     
     for test in tests:
-        run_test(TESTS_DIR / test)
+        try:
+            run_test(TESTS_DIR / test)
+        except OSError:
+            color.print_error(f"An unknown error occured while executing '{test}'")
 
 def configure(parsed: ArgumentParser):
-    pass
+    match parsed.script:
+        case 'run':
+            p = Popen([TEXT_EDITOR, RUN_SCRIPT])
+        case 'gen':
+            p = Popen([TEXT_EDITOR, GENERATE_SCRIPT])
+        case 'compile':
+            p = Popen([TEXT_EDITOR, COMPILE_SCRIPT])
+        case 'check':
+            p = Popen([TEXT_EDITOR, CHECK_SCRIPT])
+    
+    p.wait()
