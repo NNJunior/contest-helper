@@ -12,7 +12,7 @@ class Commands:
     switch = 'switch'
     show = 'show'
     remove = 'remove'
-    version = 'version'
+    version = '--version'
     reinstall = 'reinstall'
 
 
