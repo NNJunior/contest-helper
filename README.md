@@ -110,7 +110,7 @@ Info: Running tests...
 test0.txt       WA      0.658489s
 checker errors:
 Traceback (most recent call last):
-  File "/Users/nnjunior/Library/Mobile Documents/com~apple~CloudDocs/Documents/Python/.debug/main/scripts/check", line 9, in <module>
+  File "path/to/.debug/main/scripts/check", line 9, in <module>
     raise Exception(f"expected '{a + b}', got '{answ}'")
 Exception: expected '146', got '50'
 ```
