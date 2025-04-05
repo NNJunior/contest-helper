@@ -51,7 +51,6 @@ Let's set out check script
 ```
 helper config check
 ```
-/Library/Frameworks/Python.framework/Versions/3.13/bin/python3
 In opened editor, add lines (replace `/path/to/python/interpteter` with the actual path to Python interpreter).
 ```python
 #!/path/to/python/interpteter
