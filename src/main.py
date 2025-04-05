@@ -1,5 +1,6 @@
-import sys
 import argparse
+import commands
+import sys
 
 class Commands:
     init = 'init'
@@ -36,3 +37,6 @@ edit_parser.add_argument("script", choices=('run', 'gen', 'compile', 'check'), h
 
 parsed_args = parser.parse_args(sys.argv[1:])
 
+match parsed_args.command:
+    case Commands.init:
+        commands.init(parsed_args)
