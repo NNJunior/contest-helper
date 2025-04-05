@@ -124,7 +124,7 @@ def remove(parsed: ArgumentParser):
 
 def show(parsed: ArgumentParser):
     if parsed.current:
-        if ENVIRONMENT_DIR.name is not None:
+        if ENVIRONMENT_DIR is not None:
             color.print_info(f"In environment '{ENVIRONMENT_DIR.name}'")
         else:
             color.print_warning('You are now not inside any of the environments')
