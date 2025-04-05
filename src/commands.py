@@ -211,9 +211,6 @@ def run(parsed: ArgumentParser):
             shell=True,
             cwd=TESTING_DIR
         )
-        stderr.close()
-        stdout.close()
-        stdin.close()
         
         time_total = None
         
@@ -221,6 +218,9 @@ def run(parsed: ArgumentParser):
             run_process.wait(parsed.timeout)
         except TimeoutExpired as e:
             run_process.kill()
+        stderr.close()
+        stdout.close()
+        stdin.close()
         tend = time.time()
         time_total = tend - tstart
         
