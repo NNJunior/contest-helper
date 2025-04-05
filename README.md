@@ -142,6 +142,9 @@ Fine! Now you can use `helper`!
 
 # `helper` functionality
 You can always run `helper --help` to get some basic help over this tool.
+## `helper --version`
+Shows the version of `helper`
+
 ## `helper new`
 ```
 helper new [-h | --help] name
