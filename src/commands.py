@@ -81,10 +81,10 @@ if os.path.isfile(SETTINGS_FILE) and get_setting('current') is not None:
 
 SCRIPTS_DIR = None if ENVIRONMENT_DIR is None else ENVIRONMENT_DIR / "scripts"
 
-RUN_SCRIPT      = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "run"
-GENERATE_SCRIPT = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "generate"
-COMPILE_SCRIPT  = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "compile"
-CHECK_SCRIPT    = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "check"
+RUN_SCRIPT      = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "run.sh"
+GENERATE_SCRIPT = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "generate.sh"
+COMPILE_SCRIPT  = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "compile.sh"
+CHECK_SCRIPT    = None if SCRIPTS_DIR is None else SCRIPTS_DIR / "check.sh"
 
 TESTING_DIR = None if ENVIRONMENT_DIR is None else ENVIRONMENT_DIR / "testing"
 
